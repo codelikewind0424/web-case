@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--命名空间-->
+<mapper namespace="com.itheima.case2.dao.UserMapper">
+
+    <!--
+        id：下面select标签中定义的resultMap的值，唯一标识
+        type：查询的最终数据的类型，如果是一个集合则书写集合的泛型，小写即可，因为我们配置了别名映射
+    -->
+    <resultMap id="pageSelectAllUser" type="user" autoMapping="true">
+        <id column="id" property="id"/>
+
+        <collection property="roles" javaType="list" ofType="Role" autoMapping="true">
+            <id column="rid" property="id"/>
+        </collection>
+
+    </resultMap>
+    <!--f
+        id：调用UserMapper中的方法名：findAllUsersByPage
+        resultMap：创建一个唯一标识的字符串，用于调用上面resultMap中的数据
+    -->
+    <select id="findAllUsersByPage" resultMap="pageSelectAllUser">
+        SELECT
+          u.*,
+          tr.id rid,
+          tr.name
+        FROM
+          (SELECT
+            *
+          FROM
+            t_user
+          LIMIT #{startIndex}, #{pageSize}) u
+          INNER JOIN t_role tr
+          INNER JOIN t_user_role tur
+            ON u.id = tur.user_id
+            AND tr.id = tur.role_id;
+   </select>
+</mapper>
